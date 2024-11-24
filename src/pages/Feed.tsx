@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 import Post from '../components/Post';
-import { Image } from 'lucide-react';
 
 export default function Feed() {
-  const { currentUser, posts, addPost } = useStore();
+  const { currentUser, posts, addPost } = useAppStore();
   const [newPostText, setNewPostText] = useState('');
   const [newPostImage, setNewPostImage] = useState('');
+
+  // Vue альтернатива:
+  // const newPostText = ref('');
+  // const newPostImage = ref('');
+  //
+  // const setNewPostText = (value) => {
+  //   newPostText.value = value;
+  // };
+  //
+  // const setNewPostImage = (value) => {
+  //   newPostImage.value = value;
+  // };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +68,7 @@ export default function Feed() {
       <div className="space-y-6">
         {posts
           .sort((a, b) => b.createdAt - a.createdAt)
+          .filter(post => currentUser?.friends.includes(post.userId) || post.userId === currentUser?.id)
           .map(post => (
             <Post key={post.id} post={post} />
           ))}

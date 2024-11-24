@@ -1,12 +1,11 @@
-import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 import Post from '../components/Post';
 
 export default function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
-  const searchContent = useStore(state => state.searchContent);
+  const {searchContent} = useAppStore();
   
   const results = searchContent(query);
 

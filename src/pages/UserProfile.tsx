@@ -1,12 +1,11 @@
-import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 import Post from '../components/Post';
 import { UserPlus, UserMinus } from 'lucide-react';
 
 export default function UserProfile() {
   const { userId } = useParams<{ userId: string }>();
-  const { users, posts, currentUser, toggleFriend } = useStore();
+  const { users, posts, currentUser, toggleFriend } = useAppStore();
   
   const user = users.find(u => u.id === userId);
   const userPosts = posts.filter(post => post.userId === userId);

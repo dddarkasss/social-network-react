@@ -16,13 +16,19 @@ interface AppState {
   searchContent: (query: string) => SearchResult[];
 }
 
+interface LocalStorageData {
+  users: User[];
+  posts: Post[];
+  comments: Comment[];
+}
+
 const STORAGE_KEY = 'social_network_data';
 
 const generateInitialData = () => {
   const users: User[] = Array.from({ length: 50 }, () => ({
     id: faker.string.uuid(),
     name: faker.person.fullName(),
-    avatar: faker.image.avatar(),
+    avatar: faker.image.avatarGitHub(),
     coverImage: faker.image.url({ width: 1200, height: 400 }),
     title: faker.person.jobTitle(),
     friends: [],
@@ -33,7 +39,10 @@ const generateInitialData = () => {
     const friendCount = faker.number.int({ min: 5, max: 15 });
     const potentialFriends = users.filter((u) => u.id !== user.id);
     const friends = faker.helpers.arrayElements(potentialFriends, friendCount);
+
     user.friends = friends.map((f) => f.id);
+
+    // Тут ми додаємо поточного користувача user до друзів у всіх його друзів
     friends.forEach((friend) => {
       if (!friend.friends.includes(user.id)) {
         friend.friends.push(user.id);
@@ -42,15 +51,21 @@ const generateInitialData = () => {
   });
 
   const posts: Post[] = Array.from({ length: 100 }, () => {
+    // Вибираємо випадкового користувача
     const user = faker.helpers.arrayElement(users);
+
+    // Пост може бути або текстовим або зображенням або обома, але не може бути порожнім
+    const text = Math.random() > 0.5 ? faker.lorem.paragraph() : '';
+    const image = Math.random() > 0.5 || !text ? faker.image.url({ width: 800, height: 600 }) : '';
+
     return {
       id: faker.string.uuid(),
       userId: user.id,
-      text: Math.random() > 0.3 ? faker.lorem.paragraph() : undefined,
-      image: Math.random() > 0.5 ? faker.image.url({ width: 800, height: 600 }) : undefined,
+      text,
+      image,
       createdAt: faker.date.past().getTime(),
-      likes: faker.helpers.arrayElements(users, faker.number.int({ min: 0, max: 20 })).map((u) => u.id),
-    };
+      likes: faker.helpers.arrayElements(users, { min: 0, max: 20 }).map((u) => u.id),
+    } as Post;
   });
 
   const comments: Comment[] = posts.flatMap((post) => 
@@ -67,22 +82,27 @@ const generateInitialData = () => {
   return { users, posts, comments };
 };
 
-const loadFromStorage = () => {
+const loadFromStorage = (): LocalStorageData => {
   const data = localStorage.getItem(STORAGE_KEY);
+
   if (data) {
     return JSON.parse(data);
   }
+
   const initialData = generateInitialData();
+
   localStorage.setItem(STORAGE_KEY, JSON.stringify(initialData));
+
   return initialData;
 };
 
 const saveToStorage = (data: Partial<{ users: User[], posts: Post[], comments: Comment[] }>) => {
   const currentData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...currentData, ...data }));
 };
 
-export const useStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   currentUser: null,
   users: [],
   posts: [],
@@ -90,7 +110,8 @@ export const useStore = create<AppState>((set, get) => ({
   
   initializeData: () => {
     const data = loadFromStorage();
-    set({ 
+
+    set({
       users: data.users,
       posts: data.posts,
       comments: data.comments,
@@ -108,7 +129,9 @@ export const useStore = create<AppState>((set, get) => ({
 
     set(state => {
       const newPosts = [newPost, ...state.posts];
+
       saveToStorage({ posts: newPosts });
+
       return { posts: newPosts };
     });
   },
@@ -123,13 +146,16 @@ export const useStore = create<AppState>((set, get) => ({
 
     set(state => {
       const newComments = [newComment, ...state.comments];
+
       saveToStorage({ comments: newComments });
+
       return { comments: newComments };
     });
   },
 
   toggleLike: (type, id) => {
     const { currentUser } = get();
+
     if (!currentUser) return;
 
     set(state => {
@@ -143,7 +169,9 @@ export const useStore = create<AppState>((set, get) => ({
           }
           return post;
         });
+
         saveToStorage({ posts: newPosts });
+
         return { posts: newPosts };
       } else {
         const newComments = state.comments.map(comment => {
@@ -155,7 +183,9 @@ export const useStore = create<AppState>((set, get) => ({
           }
           return comment;
         });
+
         saveToStorage({ comments: newComments });
+
         return { comments: newComments };
       }
     });
@@ -170,6 +200,7 @@ export const useStore = create<AppState>((set, get) => ({
           const friends = user.friends.includes(userId)
             ? user.friends.filter(id => id !== userId)
             : [...user.friends, userId];
+
           return { ...user, friends };
         }
         if (user.id === userId) {
@@ -182,6 +213,7 @@ export const useStore = create<AppState>((set, get) => ({
       });
 
       saveToStorage({ users: newUsers });
+
       return {
         users: newUsers,
         currentUser: newUsers.find(u => u.id === state.currentUser?.id) || null
@@ -200,6 +232,7 @@ export const useStore = create<AppState>((set, get) => ({
       );
 
       saveToStorage({ users: newUsers });
+
       return {
         users: newUsers,
         currentUser: newUsers.find(u => u.id === state.currentUser?.id) || null

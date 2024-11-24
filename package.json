@@ -1,6 +1,11 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "social-network-university",
   "private": true,
+  "author": {
+    "email": "dashka.gets@gmail.com",
+    "name": "Daria",
+    "url": "https://github.com/dddarkasss"
+  },
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -10,7 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@faker-js/faker": "^8.4.1",
+    "@faker-js/faker": "^9.2.0",
     "clsx": "^2.1.0",
     "date-fns": "^3.3.1",
     "lucide-react": "^0.344.0",

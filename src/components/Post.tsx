@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { Heart, MessageCircle } from 'lucide-react';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 import type { Post as PostType } from '../types';
 
 interface PostProps {
@@ -11,7 +11,7 @@ interface PostProps {
 }
 
 export default function Post({ post, showComments = true }: PostProps) {
-  const { users, comments, currentUser, toggleLike, addComment } = useStore();
+  const { users, comments, currentUser, toggleLike, addComment } = useAppStore();
   const [commentText, setCommentText] = React.useState('');
   
   const author = users.find(u => u.id === post.userId);

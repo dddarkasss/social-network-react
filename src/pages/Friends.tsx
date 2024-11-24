@@ -1,10 +1,9 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 import { UserMinus, MessageCircle } from 'lucide-react';
 
 export default function Friends() {
-  const { currentUser, users, toggleFriend } = useStore();
+  const { currentUser, users, toggleFriend } = useAppStore();
   
   if (!currentUser) return null;
 

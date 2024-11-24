@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useStore } from '../store';
-import { Home, Users, Search as SearchIcon, Settings, User } from 'lucide-react';
+import { useAppStore } from '../store';
+import { Home, Users, Search as SearchIcon, Settings } from 'lucide-react';
 
 export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
-  const currentUser = useStore(state => state.currentUser);
+
+  // Vue виглядала б так:
+  // const searchQuery = ref('');
+  // const setSearchQuery = (value) => {
+  //   searchQuery.value = value;
+  // };
+
+  const navigate = useNavigate(); // Vue аналог: const router = useRouter();
+  const {currentUser} = useAppStore();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`); // Vue аналог: router.push(`/search?q=${encodeURIComponent(searchQuery.value)}`);
     }
   };
 

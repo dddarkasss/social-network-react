@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useStore } from '../store';
+import { useAppStore } from '../store';
 
 export default function Settings() {
-  const { currentUser, updateUser } = useStore();
+  const { currentUser, updateUser } = useAppStore();
   const [formData, setFormData] = useState({
     name: currentUser?.name || '',
     avatar: currentUser?.avatar || '',
@@ -12,11 +12,13 @@ export default function Settings() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     updateUser(formData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
